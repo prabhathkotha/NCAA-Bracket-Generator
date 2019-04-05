@@ -27,7 +27,7 @@ public class BracketInitializer {
 		return teams;
 	}
 
-	private static String get_east_final_four_opponent() {
+	private static String get_east_final_four_east_opponent() {
 		Scanner sc = new Scanner(System.in);
 
 		System.out.println("Which region opposes East in the final 4?");
@@ -51,7 +51,7 @@ public class BracketInitializer {
 		return east_opponent;
 	}
 
-	private static void order_teams(Team[] teams) {
+	private static void order_teams(Team[] teams, String east_opponent) {
 		// sorts by region first, in order of:
 		// {east, midwest, south, west}
 		// then, sorts by seed in order of:
@@ -59,7 +59,8 @@ public class BracketInitializer {
 		Arrays.sort(teams);
 
 		// possible values: {WEST, SOUTH, MIDWEST}
-		String east_final_four_opponent = get_east_final_four_opponent();
+		String east_final_four_opponent = (east_opponent == null) ? get_east_final_four_east_opponent()
+				: east_opponent.toUpperCase();
 
 		// block swap regional subarrays to fit final four mapping
 		Team[] temp = new Team[16];
@@ -78,16 +79,32 @@ public class BracketInitializer {
 			System.arraycopy(temp, 0, teams, 32, 16);
 			break;
 		default:
-			throw new RuntimeException("Invalid final four opponent for East.");
+			throw new RuntimeException("Invalid final four opponent for East. Must be one of: {WEST, SOUTH, MIDWEST}");
 		}
 	}
 
-	public static void initialize(String team_json_filepath, Bracket bracket) {
-		Team[] teams = load_teams(team_json_filepath);
-		order_teams(teams);
+	public static void validate_bracket(Bracket bracket) {
+		// TODO: implement this
+		// validate on a team-level
+		// ensure there are 16 in each region, and that regions are grouped together
+		// ensure that within a region, seeds are ordered correctly
 	}
 
-	public static void main(String[] args) {
-		get_east_final_four_opponent();
+	public static void initialize(String team_json_filepath, Bracket bracket, String east_opponent) {
+		Team[] teams = load_teams(team_json_filepath);
+		order_teams(teams, east_opponent);
+
+		Match[] matches = new Match[32];
+		for (int i = 0; i < teams.length; i = i + 2) {
+			matches[i / 2] = new Match();
+			matches[i / 2].first_team = teams[i];
+			matches[i / 2].second_team = teams[i + 1];
+		}
+
+		bracket.round_of_64 = matches;
+	}
+
+	public static void initialize(String team_json_filepath, Bracket bracket) {
+		initialize(team_json_filepath, bracket, null);
 	}
 }

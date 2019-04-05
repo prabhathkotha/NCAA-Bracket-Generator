@@ -32,6 +32,14 @@ public class Bracket {
 		progress_from_2_to_1();
 	}
 
+	public void pretty_print() {
+		// implement printing to standard out
+	}
+
+	public void pretty_print(String filename) {
+		// implement printing to specified file
+	}
+
 	private void progress_from_64_to_32() {
 		// update winners in match objects
 		simulate_round(round_of_64);
@@ -215,5 +223,4 @@ public class Bracket {
 			}
 		}
 	}
-
 }

@@ -10,7 +10,7 @@ public class Bracket {
 	Team winner;
 
 	public Bracket() {
-		// should initialize bracket using Bracket_Initializer
+		// must initialize bracket using Bracket_Initializer
 		round_of_64 = null;
 		round_of_32 = new Match[16];
 		round_of_16 = new Match[8];

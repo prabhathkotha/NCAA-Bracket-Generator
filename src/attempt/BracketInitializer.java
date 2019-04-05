@@ -2,6 +2,8 @@ package attempt;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.google.gson.*;
@@ -18,6 +20,10 @@ public class BracketInitializer {
 			e.printStackTrace();
 		}
 
+		for (int i = 0; i < teams.length; i++) {
+			teams[i].region = teams[i].region.toUpperCase();
+		}
+
 		return teams;
 	}
 
@@ -27,7 +33,7 @@ public class BracketInitializer {
 		System.out.println("Which region opposes East in the final 4?");
 		System.out.print("> ");
 
-		String[] valid_east_opponents = { "WEST", "SOUTH", "MIDWEST"};
+		String[] valid_east_opponents = { "WEST", "SOUTH", "MIDWEST" };
 		String east_opponent = sc.next().toUpperCase();
 
 		while (!Arrays.asList(valid_east_opponents).contains(east_opponent)) {
@@ -38,44 +44,50 @@ public class BracketInitializer {
 			System.out.println("- South");
 			System.out.println("- Midwest");
 			System.out.print("> ");
-			
+
 			east_opponent = sc.next().toUpperCase();
 		}
-		
+
 		return east_opponent;
 	}
 
-	private static void order_teams_inplace(Team[] teams) {
-		// order of NCAA seeded matchups
-		final int[] correct_seed_order = { 1, 16, 8, 9, 5, 12, 4, 13, 6, 11, 3, 14, 7, 10, 2, 15 };
-		
-		//possible values: {WEST, SOUTH, MIDWEST}
+	private static void order_teams(Team[] teams) {
+		// sorts by region first, in order of:
+		// {east, midwest, south, west}
+		// then, sorts by seed in order of:
+		// { 1, 16, 8, 9, 5, 12, 4, 13, 6, 11, 3, 14, 7, 10, 2, 15 }
+		Arrays.sort(teams);
+
+		// possible values: {WEST, SOUTH, MIDWEST}
 		String east_final_four_opponent = get_east_final_four_opponent();
-		
-		Team[] east = new Team[16];
-		Team[] west = new Team[16];
-		Team[] south = new Team[16];
-		Team[] midwest = new Team[16];
 
-		//populate regional matches
-		for (int i = 0; i < 16; i++) {
-			//search for team matching correct_seed_order[i] seed in each region, place into region[i]
+		// block swap regional subarrays to fit final four mapping
+		Team[] temp = new Team[16];
+		switch (east_final_four_opponent) {
+		case "MIDWEST":
+			// do nothing, because teams are already in correct order
+			break;
+		case "WEST":
+			System.arraycopy(teams, 16, temp, 0, 16);
+			System.arraycopy(teams, 48, teams, 16, 16);
+			System.arraycopy(temp, 0, teams, 48, 16);
+			break;
+		case "SOUTH":
+			System.arraycopy(teams, 16, temp, 0, 16);
+			System.arraycopy(teams, 32, teams, 16, 16);
+			System.arraycopy(temp, 0, teams, 32, 16);
+			break;
+		default:
+			throw new RuntimeException("Invalid final four opponent for East.");
 		}
-		
-		// TODO: finsh this
-
 	}
 
 	public static void initialize(String team_json_filepath, Bracket bracket) {
 		Team[] teams = load_teams(team_json_filepath);
-		order_teams_inplace(teams);
-
-		// TODO: initialize first round of bracket correctly
-		// make this work regardless of order of teams
-		// I can do this by considering region and seed
+		order_teams(teams);
 	}
 
 	public static void main(String[] args) {
-		east_final_four_opponent();
+		get_east_final_four_opponent();
 	}
 }

@@ -29,4 +29,9 @@ public class Team implements Comparable<Team> {
 
 		return region.compareToIgnoreCase(o.region);
 	}
+
+	@Override
+	public String toString() {
+		return region + " " + seed + " " + name;
+	}
 }
